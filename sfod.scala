@@ -15,7 +15,7 @@ val newColumnNames = df.columns.map(columnName => columnName.replace(" ", "").re
 df = df.toDF(newColumnNames: _*)
 
 // data processing - remove all entries where label or feature columns are null
-df = df.na.drop(Array("CallTypeGroup", "ZipcodeofIncident", "CallType", "UnitType", "NeighborhooodsAnalysisBoundaries", "NumberofAlarms", "EntryDtTm"))
+df = df.na.drop(Array("CallTypeGroup", "ZipcodeofIncident", "CallType", "NeighborhooodsAnalysisBoundaries", "NumberofAlarms", "EntryDtTm"))
 
 // data processing - date schema is not detected automatically -> convert string to datetime
 import org.apache.spark.sql.functions.to_timestamp
@@ -57,28 +57,26 @@ df.printSchema()
 import org.apache.spark.ml.feature.{OneHotEncoder, StringIndexer}
 val callTypeGroupIndexer = new StringIndexer().setInputCol("CallTypeGroup").setOutputCol("CallTypeGroupIndex").setHandleInvalid("keep")
 val callTypeIndexer = new StringIndexer().setInputCol("CallType").setOutputCol("CallTypeIndex").setHandleInvalid("keep")
-val unitTypeIndexer = new StringIndexer().setInputCol("UnitType").setOutputCol("UnitTypeIndex").setHandleInvalid("keep")
 val neighborhooodsAnalysisBoundariesIndexer = new StringIndexer().setInputCol("NeighborhooodsAnalysisBoundaries").setOutputCol("NeighborhooodsAnalysisBoundariesIndex").setHandleInvalid("keep")
-val indexers = Array(callTypeGroupIndexer, callTypeIndexer, unitTypeIndexer, neighborhooodsAnalysisBoundariesIndexer)
+val indexers = Array(callTypeGroupIndexer, callTypeIndexer, neighborhooodsAnalysisBoundariesIndexer)
 
 // data processing - create One Hot Encoder for categorical values
 val callTypeGroupEncoder = new OneHotEncoder().setInputCol("CallTypeGroupIndex").setOutputCol("CallTypeGroupVec")
 val callTypeEncoder = new OneHotEncoder().setInputCol("CallTypeIndex").setOutputCol("CallTypeVec")
-val unitTypeEncoder = new OneHotEncoder().setInputCol("UnitTypeIndex").setOutputCol("UnitTypeVec")
 val neighborhooodsAnalysisBoundariesEncoder = new OneHotEncoder().setInputCol("NeighborhooodsAnalysisBoundariesIndex").setOutputCol("NeighborhooodsAnalysisBoundariesVec")
-val encoders = Array(callTypeGroupEncoder, callTypeEncoder, unitTypeEncoder, neighborhooodsAnalysisBoundariesEncoder)
+val encoders = Array(callTypeGroupEncoder, callTypeEncoder, neighborhooodsAnalysisBoundariesEncoder)
 
 // (label, features)
 import org.apache.spark.ml.feature.VectorAssembler
-val features = Array("ZipcodeofIncident", "CallTypeVec", "UnitTypeVec", "NeighborhooodsAnalysisBoundariesVec", "EntryHour", "EntryQuarter", "NumberofAlarms")
+val features = Array("ZipcodeofIncident", "CallTypeVec", "NeighborhooodsAnalysisBoundariesVec", "EntryHour", "EntryQuarter", "NumberofAlarms")
 val assembler = new VectorAssembler().setInputCols(features).setOutputCol("features")
-val Array(training, test) = df.randomSplit(Array(0.7, 0.3), seed=12345)
+val Array(training, test) = df.randomSplit(Array(0.8, 0.2), seed=12345)
 
 // setup pipeline
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.LogisticRegression
 
-val lr = new LogisticRegression()
+val lr = new LogisticRegression().setMaxIter(10)
 val stages = indexers ++ encoders :+ assembler :+ lr
 val pipeline = new Pipeline().setStages(stages)
 
