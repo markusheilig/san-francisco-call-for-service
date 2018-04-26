@@ -2,8 +2,11 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.LogisticRegression
+import org.apache.spark.ml.classification.MultilayerPerceptronClassifier
+import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.VectorAssembler
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
+import org.apache.spark.ml.attribute.AttributeKeys
 
 // dataset can be found at https://data.sfgov.org/Public-Safety/Fire-Department-Calls-for-Service/nuek-vuh3
 object SfodApp {
@@ -12,6 +15,7 @@ object SfodApp {
     // initialize spark session and run with all cores
     val cores = Runtime.getRuntime.availableProcessors()
     val spark = SparkSession.builder().config("spark.master", s"local[$cores]").getOrCreate()
+    spark.sparkContext.setLogLevel("ERROR")
     import spark.implicits._
 
     // read dataset
@@ -29,7 +33,7 @@ object SfodApp {
     df = df.withColumn("EntryDtTm", to_timestamp($"EntryDtTm", "MM/dd/yyyy hh:mm:ss a"))
 
     // data processing - get time of day (0-6, 6-12, 12-18, 18-24)
-    df = df.withColumn("TimeOfDay", hour($"EntryDtTm")/6)
+    df = df.withColumn("TimeOfDay", hour($"EntryDtTm") / 6)
 
     // data processing - get quarter of incoming call
     df = df.withColumn("EntryQuarter", quarter($"EntryDtTm"))
@@ -40,6 +44,8 @@ object SfodApp {
     // data processing - add the label column (label = 1 <==> CallTypeGroup = "Potentially Life-Threatening" otherwise label = 0)
     df = df.withColumn("label", when($"CallTypeGroup" === "Potentially Life-Threatening", 1).otherwise(0))
 
+    val Array(train, test) = df.randomSplit(Array(0.7, 0.3), seed = 12345)
+
     // data exploration - print schema
     df.printSchema()
 
@@ -48,7 +54,7 @@ object SfodApp {
       val colnames = df.columns
       val firstrow = df.head(1)(0)
       println("\r\nExample Data Row")
-      for(ind <- Range(1, colnames.length)) {
+      for (ind <- Range(1, colnames.length)) {
         println(s"${colnames(ind)}: ${firstrow(ind)}\r\n")
       }
     }
@@ -62,13 +68,12 @@ object SfodApp {
 
     // data processing - create String Indexer for categorical values
     val (indexers, encoders) = Helper.indexAndEncode("CallTypeGroup", "CallType", "NeighborhooodsAnalysisBoundaries")
-
-    // (label, features)
-    val features = Array("ZipcodeofIncident", "TimeOfDay", "EntryQuarter") ++ encoders.flatMap(_.getOutputCols)
-    val assembler = new VectorAssembler().setInputCols(features).setOutputCol("features")
-    val Array(train, test) = df.randomSplit(Array(0.7, 0.3), seed=12345)
+    val featureNames = Array("ZipcodeofIncident", "TimeOfDay", "EntryQuarter") ++ encoders.flatMap(_.getOutputCols)
+    val assembler = new VectorAssembler().setInputCols(featureNames).setOutputCol("features")
 
     // setup pipeline
+
+    /*
     val lr = new LogisticRegression()
     val stages = indexers ++ encoders :+ assembler :+ lr
     val pipeline = new Pipeline().setStages(stages)
@@ -87,6 +92,38 @@ object SfodApp {
     println(metrics.accuracy)
     println("Confusion matrix: ")
     println(metrics.confusionMatrix)
+    */
+
+
+    //val features = assembler.transform(df)
+    val xxx = indexers ++ encoders :+ assembler
+    val p = new Pipeline().setStages(xxx)
+    val f = p.fit(df)
+    f.transform(df).select($"features")show(20, false)
+
+    sys.exit(0)
+
+    val newTrainingData = train.select($"label", $"features")
+    val newTestData = test.select($"label", $"features")
+
+    val numFeatures = featureNames.length
+    val layers = Array[Int](numFeatures, 10, 2)
+    val trainer = new MultilayerPerceptronClassifier()
+      .setLayers(layers)
+      .setBlockSize(128)
+      .setSeed(1234L)
+      .setMaxIter(100)
+
+    val stages = indexers ++ encoders :+ assembler :+ trainer
+    val pipeline = new Pipeline().setStages(stages)
+
+    // train the model
+    val model = pipeline.fit(train)
+    val result = model.transform(test)
+    val predictionAndLabels = result.select("prediction", "label")
+    val evaluator = new MulticlassClassificationEvaluator().setMetricName("accuracy")
+
+    println(s"Test set accuracy = ${evaluator.evaluate(predictionAndLabels)}")
 
   }
 }
