@@ -30,7 +30,7 @@ object SfodApp {
     df = df.toDF(newColumnNames: _*)
 
     // data processing - remove all entries where label or feature columns are null
-    df = df.na.drop(Array("CallTypeGroup", "ZipcodeofIncident", "CallType", "NeighborhooodsAnalysisBoundaries"))
+    df = df.na.drop(Array("ZipcodeofIncident", "CallType", "NeighborhooodsAnalysisBoundaries"))
 
     /*
     // data processing - date schema is not detected automatically -> convert string to datetime
@@ -72,7 +72,7 @@ object SfodApp {
     }
 
     // data processing - create String Indexer for categorical values
-    val (indexers, encoders) = Helper.indexAndEncode("CallTypeGroup", "CallType", "NeighborhooodsAnalysisBoundaries")
+    val (indexers, encoders) = Helper.indexAndEncode("CallTypeGroup", "NeighborhooodsAnalysisBoundaries")
     val featureNames = Array("ZipcodeofIncident") ++ indexers.map(_.getOutputCol) //++ encoders.flatMap(_.getOutputCols)
     val assembler = new VectorAssembler().setInputCols(featureNames).setOutputCol("features")
 
