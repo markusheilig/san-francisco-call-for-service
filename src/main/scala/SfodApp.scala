@@ -1,12 +1,10 @@
-import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions._
 import org.apache.spark.ml.Pipeline
-import org.apache.spark.ml.classification.LogisticRegression
 import org.apache.spark.ml.classification.MultilayerPerceptronClassifier
-import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.VectorAssembler
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
-import org.apache.spark.ml.attribute.AttributeKeys
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions._
 
 // dataset can be found at https://data.sfgov.org/Public-Safety/Fire-Department-Calls-for-Service/nuek-vuh3
 object SfodApp {
@@ -14,7 +12,7 @@ object SfodApp {
   def main(args: Array[String]): Unit = {
     // initialize spark session and run with all cores
     val cores = Runtime.getRuntime.availableProcessors()
-    val spark = SparkSession.builder().config("spark.master", s"local[$cores]").getOrCreate()
+    implicit val spark = SparkSession.builder().config("spark.master", s"local[$cores]").getOrCreate()
     spark.sparkContext.setLogLevel("ERROR")
     import spark.implicits._
 
@@ -123,16 +121,21 @@ object SfodApp {
 
     // train the model
     val model = pipeline.fit(train)
-    val result = model.transform(test)
-    val predictionAndLabels = result.select("prediction", "label")
-    val evaluator = new MulticlassClassificationEvaluator().setMetricName("accuracy")
-    println(s"Test set accuracy = ${evaluator.evaluate(predictionAndLabels)}")
 
-    val metrics = new MulticlassMetrics(predictionAndLabels.as[(Double, Double)].rdd)
-    println("Accuracy: ")
-    println(metrics.accuracy)
-    println("Confusion matrix: ")
-    println(metrics.confusionMatrix)
+    def printStatistics(what: String, result: DataFrame): Unit = {
+      print(s"\n\n$what statistics:\n")
+      val predictionAndLabels = result.select("prediction", "label")
+      val metrics = new MulticlassMetrics(predictionAndLabels.as[(Double, Double)].rdd)
+      println(s"Accuracy: ${metrics.accuracy}")
+      println(s"Confusion matrix: \n${metrics.confusionMatrix}")
+    }
+
+    val trainResult = model.transform(train)
+    printStatistics("Training", trainResult)
+
+    val testResult = model.transform(test)
+    printStatistics("Test", testResult)
 
   }
+
 }
