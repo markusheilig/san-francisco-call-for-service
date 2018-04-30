@@ -30,23 +30,19 @@ object SfodApp {
     df = df.toDF(newColumnNames: _*)
 
     // data processing - remove all entries where label or feature columns are null
-    df = df.na.drop(Array("ZipcodeofIncident", "CallType", "NeighborhooodsAnalysisBoundaries"))
+    df = df.na.drop(Array("CallType","Priority", "ZipcodeofIncident"))
     
     // data processing - date schema is not detected automatically -> convert string to datetime
     df = df.withColumn("EntryDtTm", to_timestamp($"EntryDtTm", "MM/dd/yyyy hh:mm:ss a"))
 
-    // data processing - get time of day (0-6, 6-12, 12-18, 18-24)
     df = df.withColumn("HourOfDay", hour($"EntryDtTm"))
-
-    // data processing - get time of day (0-6, 6-12, 12-18, 18-24)
-    df = df.withColumn("isWeekend", dayofweek($"EntryDtTm"))
-    df = df.withColumn("DayOfYear", month($"EntryDtTm"))
-
-    // data processing - get quarter of incoming call
-    df = df.withColumn("EntryQuarter", quarter($"EntryDtTm"))
+    df = df.withColumn("DayOfWeek", dayofweek($"EntryDtTm"))
+    df = df.withColumn("isWeekend", dayofweek($"EntryDtTm")>=5)
+    df = df.withColumn("MonthOfYear", month($"EntryDtTm"))
+    df = df.withColumn("WeekOfYear", weekofyear($"EntryDtTm"))
 
     // data processing - drop columns where there is no time specification
-    df = df.na.drop(Array("HourOfDay", "EntryQuarter"))
+    df = df.na.drop(Array("HourOfDay", "isWeekend", "MonthOfYear", "WeekOfYear"))
 
     // data processing - add the label column (label = 1 <==> CallTypeGroup = "Potentially Life-Threatening" otherwise label = 0)
     df = df.withColumn("label", when($"CallTypeGroup" === "Potentially Life-Threatening", 1).otherwise(0))
@@ -74,8 +70,8 @@ object SfodApp {
     }
 
     // data processing - create String Indexer for categorical values
-    val (indexers, encoders) = Helper.indexAndEncode("CallType", "NeighborhooodsAnalysisBoundaries", "Box")
-    val featureNames = Array("DayOfYear","isWeekend", "HourOfDay", "EntryQuarter") ++ indexers.map(_.getOutputCol) //++ encoders.flatMap(_.getOutputCols)
+    val (indexers, encoders) = Helper.indexAndEncode("CallType", "Box", "Priority", "ZipcodeofIncident")
+    val featureNames = Array("DayOfWeek","MonthOfYear","isWeekend", "HourOfDay", "WeekOfYear") ++ indexers.map(_.getOutputCol) //++ encoders.flatMap(_.getOutputCols)
     val assembler = new VectorAssembler().setInputCols(featureNames).setOutputCol("features")
 
     // setup pipeline
@@ -115,7 +111,7 @@ object SfodApp {
     println("numFeatures --> " + numFeatures)
     println("trainCount --> " + train.count())
     println("testCount --> " + test.count())
-    val layers = Array[Int](numFeatures, 4 , 2)
+    val layers = Array[Int](numFeatures, 7, 7 , 2)
     val trainer = new MultilayerPerceptronClassifier()
       .setLayers(layers)
       .setBlockSize(128)
