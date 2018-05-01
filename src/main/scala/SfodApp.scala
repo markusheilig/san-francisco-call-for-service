@@ -59,20 +59,13 @@ object SfodApp {
     df.printSchema()
 
     // data exploration - pretty print first row
-    {
-      val colnames = df.columns
-      val firstrow = df.head(1)(0)
-      println("\r\nExample Data Row")
-      for (ind <- Range(1, colnames.length)) {
-        println(s"${colnames(ind)}: ${firstrow(ind)}\r\n")
-      }
-    }
+    df.show(1, false)
 
     // data exploration - how many incidents are "Potentially Life-Threatening" (in percent)
     {
       val potentiallyLifeThreatening = df.filter($"label" === 1).count()
       val percentage = potentiallyLifeThreatening.toDouble / df.count()
-      print("%.2f%% of all incidents are potentially life-threatening".format(percentage * 100))
+      println("%.2f%% of all incidents are potentially life-threatening".format(percentage * 100))
     }
 
     // data processing - create String Indexer for categorical values
@@ -83,15 +76,15 @@ object SfodApp {
     //Prepare Stages
     val stages = indexers ++ encoders :+ assembler
 
-    //Show pre statistics
+    //Print Features + Lable table
     val testPipe = new Pipeline().setStages(stages)
     val testModel = testPipe.fit(df)
     val testFrame = testModel.transform(df)
     var columns: Array[Column] = featureNames.map(testFrame(_))
     columns = columns :+ testFrame("label")
     testFrame.select(columns:_*).show(20, false)
-    //testFrame.select($"Box").distinct().show(3000, false)
 
+    //Show pre statistics
     val numFeatures = featureNames.length
     println("numFeatures --> " + numFeatures)
     println("trainCount --> " + train.count())
