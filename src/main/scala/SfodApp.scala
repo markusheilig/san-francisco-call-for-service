@@ -3,12 +3,10 @@ import org.apache.spark.ml.classification.{LogisticRegression, MultilayerPercept
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.VectorAssembler
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
-import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.IntegerType
 
-// dataset can be found at https://data.sfgov.org/Public-Safety/Fire-Department-Calls-for-Service/nuek-vuh3
 object SfodApp {
 
   def main(args: Array[String]): Unit = {
@@ -19,11 +17,17 @@ object SfodApp {
     import spark.implicits._
 
     // read dataset
+    // dataset can be found at https://data.sfgov.org/Public-Safety/Fire-Department-Calls-for-Service/nuek-vuh3
     val csvFile = "./100k.csv"
+    // dataset can be found at https://data.sfgov.org/Public-Safety/Fire-Incidents/wr8u-xric
+    val fireCsv = "./Fire_Incidents.csv"
     /* Path
     val csvFile = "/Volumes/TranscendJetdriveLite330/downloads/Fire_Department_Calls_for_Service.csv"
      */
     var df = spark.read.option("header", "true").option("inferSchema", "true").csv(csvFile)
+    var fire_incidents = spark.read.option("header", "true").option("inferSchema", "true").csv(fireCsv)
+
+    df = df.join(fire_incidents, df("Incident Number") === fire_incidents("Incident Number"))
 
     // data processing - rename columns (remove spaces and dashes)
     val newColumnNames = df.columns.map(_.replace(" ", "").replace("-", ""))
@@ -72,7 +76,7 @@ object SfodApp {
     }
 
     // data processing - create String Indexer for categorical values
-    val (indexers, encoders) = Helper.indexAndEncode("CallType", "Priority", "NeighborhooodsAnalysisBoundaries")
+    val (indexers, encoders) = Helper.indexAndEncode("CallType", "Priority", "NeighborhooodsAnalysisBoundaries", "PrimarySituation")
     val featureNames = Array("HourOfDay", "DayOfWeek", "isWeekend", "WeekOfYear", "MonthOfYear", "ZipcodeofIncident") ++ indexers.map(_.getOutputCol) //++ encoders.flatMap(_.getOutputCols)
     val assembler = new VectorAssembler().setInputCols(featureNames).setOutputCol("features")
 
@@ -83,7 +87,9 @@ object SfodApp {
     val testPipe = new Pipeline().setStages(stages)
     val testModel = testPipe.fit(df)
     val testFrame = testModel.transform(df)
-    testFrame.show(20, false)
+    var columns: Array[Column] = featureNames.map(testFrame(_))
+    columns = columns :+ testFrame("label")
+    testFrame.select(columns:_*).show(20, false)
     //testFrame.select($"Box").distinct().show(3000, false)
 
     val numFeatures = featureNames.length

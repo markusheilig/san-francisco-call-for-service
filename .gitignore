@@ -5,4 +5,5 @@ metastore_db/*
 *.iml
 target/
 Fire_Department_Calls_for_Service.csv
+Fire_Incidents.csv
 all.csv
