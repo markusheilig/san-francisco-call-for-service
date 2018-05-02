@@ -21,9 +21,7 @@ object SfodApp {
     val csvFile = "./100k.csv"
     // dataset can be found at https://data.sfgov.org/Public-Safety/Fire-Incidents/wr8u-xric
     val fireCsv = "./Fire_Incidents_100k.csv"
-    /* Path
-    val csvFile = "/Volumes/TranscendJetdriveLite330/downloads/Fire_Department_Calls_for_Service.csv"
-     */
+
     var df = spark.read.option("header", "true").option("inferSchema", "true").csv(csvFile)
     var fire_incidents = spark.read.option("header", "true").option("inferSchema", "true").csv(fireCsv)
 
