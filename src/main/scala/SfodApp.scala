@@ -135,14 +135,17 @@ object SfodApp {
       print(s"\n\n$what statistics:\n")
       val predictionAndLabels = result.select("prediction", "label")
       val metrics = new MulticlassMetrics(predictionAndLabels.as[(Double, Double)].rdd)
-      val FP = metrics.falsePositiveRate(0)
-      val TP = metrics.truePositiveRate(0)
+      val FPR = metrics.falsePositiveRate(0)
+      val TPR = metrics.truePositiveRate(0)
 
       println(s"Accuracy: ${metrics.accuracy}")
       println(s"Confusion matrix: \n${metrics.confusionMatrix}")
       println(s"Precicion (How many selected items are relevant?): \n${metrics.precision(0)}")
       println(s"Recall (How many relevant items are selected?)): \n${metrics.recall(0)}")
       println(s"F-measure (best 1, worst 0): \n${metrics.fMeasure(0)}")
+      println(s"Miss rate: \n${1-TPR}")
+      println(s"False alarm rate: \n${FPR}")
+
     }
 
     val trainResult = model.transform(train)
