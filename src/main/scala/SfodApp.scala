@@ -20,7 +20,7 @@ object SfodApp {
     // dataset can be found at https://data.sfgov.org/Public-Safety/Fire-Department-Calls-for-Service/nuek-vuh3
     val csvFile = "./100k.csv"
     // dataset can be found at https://data.sfgov.org/Public-Safety/Fire-Incidents/wr8u-xric
-    val fireCsv = "./Fire_Incidents.csv"
+    val fireCsv = "./Fire_Incidents_100k.csv"
     /* Path
     val csvFile = "/Volumes/TranscendJetdriveLite330/downloads/Fire_Department_Calls_for_Service.csv"
      */
@@ -135,8 +135,14 @@ object SfodApp {
       print(s"\n\n$what statistics:\n")
       val predictionAndLabels = result.select("prediction", "label")
       val metrics = new MulticlassMetrics(predictionAndLabels.as[(Double, Double)].rdd)
+      val FP = metrics.falsePositiveRate(0)
+      val TP = metrics.truePositiveRate(0)
+
       println(s"Accuracy: ${metrics.accuracy}")
       println(s"Confusion matrix: \n${metrics.confusionMatrix}")
+      println(s"Precicion (How many selected items are relevant?): \n${metrics.precision(0)}")
+      println(s"Recall (How many relevant items are selected?)): \n${metrics.recall(0)}")
+      println(s"F-measure (best 1, worst 0): \n${metrics.fMeasure(0)}")
     }
 
     val trainResult = model.transform(train)
