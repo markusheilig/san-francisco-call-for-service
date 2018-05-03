@@ -1,9 +1,10 @@
 *.class
 *.log
-metastore_db/*
-.idea/
+core/metastore_db/*
+core/.idea/
 *.iml
-target/
-Fire_Department_Calls_for_Service.csv
-Fire_Incidents.csv
-all.csv
+core/project/target/*
+core/target/*
+core/Fire_Department_Calls_for_Service.csv
+core/Fire_Incidents.csv
+core/all.csv
