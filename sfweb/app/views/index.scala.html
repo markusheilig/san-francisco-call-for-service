@@ -1,36 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    @* Here's where we render the page title `String`. *@
-  <title>SF Web</title>
-    <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
-  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
-  <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
-  <script src="@routes.Assets.versioned("javascripts/hello.js")" type="text/javascript"></script>
-  </head>
-  <body>
-    <h1>Call Type</h1>
-    <button id="target" type="button" class="btn btn-primary">Primary</button>
-    <button type="button" class="btn btn-secondary">Secondary</button>
-    <button type="button" class="btn btn-success">Success</button>
-    <button type="button" class="btn btn-danger">Danger</button>
-    <button type="button" class="btn btn-warning">Warning</button>
-    <button type="button" class="btn btn-info">Info</button>
-    <button type="button" class="btn btn-light">Light</button>
-    <button type="button" class="btn btn-dark">Dark</button>
+    <head>
+        @* Here's where we render the page title `String`. *@
+    <title>SF Web</title>
+        <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/smalot-bootstrap-datetimepicker/2.4.4/css/bootstrap-datetimepicker.css"/>
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+    <script src="@routes.Assets.versioned("javascripts/hello.js")" type="text/javascript"></script>
+    <style>
 
-    <button type="button" class="btn btn-link">Link</button>
-      <!-- Optional JavaScript -->
-      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-    <script>
-      $( "#target" ).click(function() {
-          console.log("asdasd")
-        alert( "Handler for .click() called." );
-      });
-    </script>
-  </body>
+        </style>
+    </head>
+    <body style="color: #550000">
+        <div style="padding-left: 20px;
+            padding-bottom: 50px;
+            padding-top: 50px">
+            <h1>Life-Threatening Predictor</h1>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <div class="row-fluid">
+                        <h5>Call Type</h5>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="form-group">
+                            <select class="selectpicker form-control" data-live-search="true" id="callType" style="background-color: #FFAAAA">
+                                <option>Elevator / Escalator Rescue</option>
+                                <option>Aircraft Emergency</option>
+                                <option>Alarms</option>
+                                <option>Odor (Strange / Unknown)</option>
+                                <option>Citizen Assist / Service Call</option>
+                                <option>HazMat</option>
+                                <option>Explosion</option>
+                                <option>Vehicle Fire</option>
+                                <option>Other</option>
+                                <option>Outside Fire</option>
+                                <option>Traffic Collision</option>
+                                <option>Assist Police</option>
+                                <option>Gas Leak (Natural and LP Gases)</option>
+                                <option>Water Rescue</option>
+                                <option>Electrical Hazard</option>
+                                <option>Structure Fire</option>
+                                <option>Medical Incident</option>
+                                <option>Fuel Spill</option>
+                                <option>Smoke Investigation (Outside)</option>
+                                <option>Train / Rail Incident</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <div class="row-fluid">
+                        <h5>Hood</h5>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="form-group">
+                            <select class="selectpicker form-control" data-live-search="true" id="hood">
+                                <option>Inner Sunset                        </option>
+                                <option>Haight Ashbury                      </option>
+                                <option>Lincoln Park                        </option>
+                                <option>Japantown                           </option>
+                                <option>None                                </option>
+                                <option>North Beach                         </option>
+                                <option>Lone Mountain/USF                   </option>
+                                <option>Western Addition                    </option>
+                                <option>Bernal Heights                      </option>
+                                <option>Mission Bay                         </option>
+                                <option>Hayes Valley                        </option>
+                                <option>Lakeshore                           </option>
+                                <option>Financial District/South Beach      </option>
+                                <option>Bayview Hunters Point               </option>
+                                <option>Visitacion Valley                   </option>
+                                <option>Inner Richmond                      </option>
+                                <option>Nob Hill                            </option>
+                                <option>Oceanview/Merced/Ingleside          </option>
+                                <option>Outer Richmond                      </option>
+                                <option>Treasure Island                     </option>
+                                <option>Chinatown                           </option>
+                                <option>Mission                             </option>
+                                <option>Excelsior                           </option>
+                                <option>Twin Peaks                          </option>
+                                <option>Seacliff                            </option>
+                                <option>Sunset/Parkside                     </option>
+                                <option>Presidio Heights                    </option>
+                                <option>Portola                             </option>
+                                <option>Golden Gate Park                    </option>
+                                <option>Glen Park                           </option>
+                                <option>McLaren Park                        </option>
+                                <option>Presidio                            </option>
+                                <option>Tenderloin                          </option>
+                                <option>Potrero Hill                        </option>
+                                <option>Outer Mission                       </option>
+                                <option>Castro/Upper Market                 </option>
+                                <option>Marina                              </option>
+                                <option>Noe Valley                          </option>
+                                <option>Russian Hill                        </option>
+                                <option>South of Market                     </option>
+                                <option>Pacific Heights                     </option>
+                                <option>West of Twin Peaks                  </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                    <div class="row-fluid">
+                        <h5>Priority</h5>
+                    </div>
+                    <div class="row-fluid">
+                        <div class="form-group">
+                            <select class="selectpicker form-control" data-live-search="true" id="prio">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>A</option>
+                                <option>B</option>
+                                <option>E</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container row-fuild">
+                <div class="col-12">
+                    <div class="row-fluid">
+                        Time
+                    </div>
+                    <div class="row-fluid">
+                        <input type="text" class="form-control" id="date">
+                    </div>
+                </div>
+            </div>
+            <div class="container row-fuild" style="padding-top: 20px">
+                <div class="col-12">
+                    <button id="predict" type="button" class="btn btn-block" style="background-color: #AA3939">
+      Predict
+                    </button>
+                </div>
+            </div>
+        </div>
+
+            <!-- Optional JavaScript -->
+            <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/smalot-bootstrap-datetimepicker/2.4.4/js/bootstrap-datetimepicker.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script>
+            var date;
+            var prio
+            var hood
+            var callType
+            $("#date").val(new Date($.now()))
+            $("#date").datetimepicker({
+                format: "mm/dd/yyyy hh:mm:ss A"
+            });
+            $("#predict").click(function () {
+                callType = $("#callType").val()
+                prio = $("#prio").val()
+                hood = $("#hood").val()
+                date = $("#date").val()
+                console.log(callType, prio, hood, date)
+                axios.get('/sf?prio='+prio+"&hood="+hood+"&callType="+callType+"&dt="+date)
+                        .then(function (response) {
+                            console.log(response);
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+            });
+         </script>
+    </body>
 </html>
