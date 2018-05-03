@@ -18,9 +18,9 @@ object SfodApp {
 
     // read dataset
     // dataset can be found at https://data.sfgov.org/Public-Safety/Fire-Department-Calls-for-Service/nuek-vuh3
-    val csvFile = "./100k.csv"
+    val csvFile = "./../datasets/100k.csv"
     // dataset can be found at https://data.sfgov.org/Public-Safety/Fire-Incidents/wr8u-xric
-    val fireCsv = "./Fire_Incidents_100k.csv"
+    val fireCsv = "./../datasets/Fire_Incidents_100k.csv"
 
     var df = spark.read.option("header", "true").option("inferSchema", "true").csv(csvFile)
     var fire_incidents = spark.read.option("header", "true").option("inferSchema", "true").csv(fireCsv)
@@ -128,6 +128,12 @@ object SfodApp {
     //Setup pipeline
     val pipeline = new Pipeline().setStages(stages :+ classifier)
     val model = pipeline.fit(train)
+
+    {
+      // save model to file
+      val timestamp = System.currentTimeMillis / 1000
+      model.save(s"./../models/myclassifier-$timestamp")
+    }
 
     def printStatistics(what: String, result: DataFrame): Unit = {
       print(s"\n\n$what statistics:\n")
