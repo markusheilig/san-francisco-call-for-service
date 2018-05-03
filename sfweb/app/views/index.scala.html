@@ -155,9 +155,11 @@
             var prio
             var hood
             var callType
-            $("#date").val(new Date($.now()))
+            $("#date").val(new Date($.now("mm/dd/yyyy HH:mm:ss P")))
             $("#date").datetimepicker({
-                format: "mm/dd/yyyy hh:mm:ss A"
+                format: "mm/dd/yyyy HH:mm:ss P",
+              todayBtn: true,
+              showMeridian: true
             });
             $("#predict").click(function () {
                 callType = $("#callType").val()
@@ -167,7 +169,8 @@
                 console.log(callType, prio, hood, date)
                 axios.get('/sf?prio='+prio+"&hood="+hood+"&callType="+callType+"&dt="+date)
                         .then(function (response) {
-                            console.log(response);
+                            console.log(response.data);
+                            alert(response.data.lifeThreatening)
                         })
                         .catch(function (error) {
                             console.log(error);
