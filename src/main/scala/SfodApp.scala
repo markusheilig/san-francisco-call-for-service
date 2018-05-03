@@ -67,8 +67,8 @@ object SfodApp {
     }
 
     // data processing - create String Indexer for categorical values
-    val (indexers, encoders) = Helper.indexAndEncode("CallType", "Priority", "NeighborhooodsAnalysisBoundaries", "PrimarySituation")
-    val featureNames = Array("HourOfDay", "DayOfWeek", "isWeekend", "WeekOfYear", "MonthOfYear", "ZipcodeofIncident") ++ indexers.map(_.getOutputCol) //++ encoders.flatMap(_.getOutputCols)
+    val (indexers, encoders) = Helper.indexAndEncode("CallType", "Priority", "NeighborhooodsAnalysisBoundaries")
+    val featureNames = Array("HourOfDay", "DayOfWeek", "isWeekend", "WeekOfYear", "MonthOfYear") ++ indexers.map(_.getOutputCol) //++ encoders.flatMap(_.getOutputCols)
     val assembler = new VectorAssembler().setInputCols(featureNames).setOutputCol("features")
 
     //Prepare Stages
