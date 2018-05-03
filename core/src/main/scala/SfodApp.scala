@@ -132,7 +132,7 @@ object SfodApp {
     {
       // save model to file
       val timestamp = System.currentTimeMillis / 1000
-      model.save(s"./../models/myclassifier-$timestamp")
+      model.save(s"models/myclassifier-$timestamp")
     }
 
     def printStatistics(what: String, result: DataFrame): Unit = {
