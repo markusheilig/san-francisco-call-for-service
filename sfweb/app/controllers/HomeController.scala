@@ -24,10 +24,14 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
   }
 
   def sf = Action { implicit request =>
-    val callType = request.getQueryString("callType").getOrElse("a")
-    val priority = request.getQueryString("prio").getOrElse("3")
-    val hood = request.getQueryString("hood").getOrElse("Tenderloin")
-    val dt = request.getQueryString("dt").getOrElse("09/02/2017 04:30:09 AM")
+    // localhost:9000/sf?callType=Fire&prio=1&hood=Portola&dt=01/16/2012 11:11:14 AM -> true
+    // localhost:9000/sf?callType=Fire&prio=2&hood=Portola&dt=01/16/2012 11:11:14 AM -> false
+    // localhost:9000/sf?callType=Fire&prio=3&hood=Portola&dt=01/16/2012 11:11:14 AM -> true
+
+    val callType = request.getQueryString("callType").get
+    val priority = request.getQueryString("prio").get
+    val hood = request.getQueryString("hood").get
+    val dt = request.getQueryString("dt").get
 
     val result = machineModel.isLifeThreatening(callType, priority, hood, dt)
     val json = JsObject(Seq(
