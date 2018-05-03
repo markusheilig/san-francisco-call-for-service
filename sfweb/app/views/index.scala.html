@@ -3,11 +3,34 @@
   <head>
     @* Here's where we render the page title `String`. *@
   <title>SF Web</title>
+    <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
   <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
   <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
   <script src="@routes.Assets.versioned("javascripts/hello.js")" type="text/javascript"></script>
   </head>
   <body>
-    <p>test</p>
+    <h1>Call Type</h1>
+    <button id="target" type="button" class="btn btn-primary">Primary</button>
+    <button type="button" class="btn btn-secondary">Secondary</button>
+    <button type="button" class="btn btn-success">Success</button>
+    <button type="button" class="btn btn-danger">Danger</button>
+    <button type="button" class="btn btn-warning">Warning</button>
+    <button type="button" class="btn btn-info">Info</button>
+    <button type="button" class="btn btn-light">Light</button>
+    <button type="button" class="btn btn-dark">Dark</button>
+
+    <button type="button" class="btn btn-link">Link</button>
+      <!-- Optional JavaScript -->
+      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script>
+      $( "#target" ).click(function() {
+          console.log("asdasd")
+        alert( "Handler for .click() called." );
+      });
+    </script>
   </body>
 </html>
