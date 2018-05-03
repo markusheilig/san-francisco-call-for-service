@@ -1,6 +1,8 @@
 package controllers
 
 import javax.inject._
+import play.api.libs.json.JsObject
+import play.api.libs.json.JsBoolean
 import play.api.mvc._
 
 /**
@@ -21,6 +23,17 @@ class HomeController @Inject()(cc: ControllerComponents) extends AbstractControl
     Ok(views.html.index())
   }
 
+  def sf = Action { implicit request =>
+    val callType = request.getQueryString("callType").getOrElse("a")
+    val priority = request.getQueryString("prio").getOrElse("3")
+    val hood = request.getQueryString("hood").getOrElse("Tenderloin")
+    val dt = request.getQueryString("dt").getOrElse("09/02/2017 04:30:09 AM")
 
+    val result = machineModel.isLifeThreatening(callType, priority, hood, dt)
+    val json = JsObject(Seq(
+      "lifeThreatening" -> JsBoolean(result)
+    ))
+    Ok(json)
+  }
 
 }
