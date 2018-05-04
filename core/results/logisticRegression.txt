@@ -1,0 +1,161 @@
+CallType only:
+  Training statistics:
+    Accuracy: 0.8768041237113402
+    Confusion matrix: 
+    1701.0  0.0  
+    239.0   0.0  
+    Precicion (How many selected items are relevant?): 
+    0.8768041237113402
+    Recall (How many relevant items are selected?)): 
+    1.0
+    F-measure (best 1, worst 0): 
+    0.9343586926668498
+    Miss rate: 
+    0.0
+    False alarm rate: 
+    1.0
+  Test statistics:
+    Accuracy: 0.8654073199527745
+    Confusion matrix: 
+    733.0  0.0  
+    114.0  0.0  
+    Precicion (How many selected items are relevant?): 
+    0.8654073199527745
+    Recall (How many relevant items are selected?)): 
+    1.0
+    F-measure (best 1, worst 0): 
+    0.9278481012658228
+    Miss rate: 
+    0.0
+    False alarm rate: 
+    1.0
+
+CallType+Uhrzeit
+  Training statistics:
+    Accuracy: 0.8768041237113402
+    Confusion matrix: 
+    1701.0  0.0  
+    239.0   0.0  
+    Precicion (How many selected items are relevant?): 
+    0.8768041237113402
+    Recall (How many relevant items are selected?)): 
+    1.0
+    F-measure (best 1, worst 0): 
+    0.9343586926668498
+    Miss rate: 
+    0.0
+    False alarm rate: 
+    1.0
+  Test statistics:
+    Accuracy: 0.8654073199527745
+    Confusion matrix: 
+    733.0  0.0  
+    114.0  0.0  
+    Precicion (How many selected items are relevant?): 
+    0.8654073199527745
+    Recall (How many relevant items are selected?)): 
+    1.0
+    F-measure (best 1, worst 0): 
+    0.9278481012658228
+    Miss rate: 
+    0.0
+    False alarm rate: 
+    1.0
+
+CallType+Prio+Uhrzeit
+  Training statistics:
+    Accuracy: 0.8871134020618556
+    Confusion matrix: 
+    1696.0  5.0   
+    214.0   25.0  
+    Precicion (How many selected items are relevant?): 
+    0.8879581151832461
+    Recall (How many relevant items are selected?)): 
+    0.9970605526161082
+    F-measure (best 1, worst 0): 
+    0.939351980060925
+    Miss rate: 
+    0.0029394473838918467
+    False alarm rate: 
+    0.895397489539749
+  Test statistics:
+    Accuracy: 0.8736717827626919
+    Confusion matrix: 
+    730.0  3.0   
+    104.0  10.0  
+    Precicion (How many selected items are relevant?): 
+    0.8752997601918465
+    Recall (How many relevant items are selected?)): 
+    0.9959072305593452
+    F-measure (best 1, worst 0): 
+    0.9317166560306318
+    Miss rate: 
+    0.004092769440654842
+    False alarm rate: 
+    0.9122807017543859
+
+
+CallType+Hood+Uhrzeit
+  Training statistics:
+    Accuracy: 0.8768041237113402
+    Confusion matrix: 
+    1701.0  0.0  
+    239.0   0.0  
+    Precicion (How many selected items are relevant?): 
+    0.8768041237113402
+    Recall (How many relevant items are selected?)): 
+    1.0
+    F-measure (best 1, worst 0): 
+    0.9343586926668498
+    Miss rate: 
+    0.0
+    False alarm rate: 
+    1.0
+  Test statistics:
+    Accuracy: 0.8654073199527745
+    Confusion matrix: 
+    733.0  0.0  
+    114.0  0.0  
+    Precicion (How many selected items are relevant?): 
+    0.8654073199527745
+    Recall (How many relevant items are selected?)): 
+    1.0
+    F-measure (best 1, worst 0): 
+    0.9278481012658228
+    Miss rate: 
+    0.0
+    False alarm rate: 
+    1.0
+
+
+CallType+Prio+Uhrzeit+Hood
+  Training statistics:
+    Accuracy: 0.8855670103092783
+      Confusion matrix: 
+      1696.0  5.0   
+      217.0   22.0  
+      Precicion (How many selected items are relevant?): 
+      0.886565603763722
+      Recall (How many relevant items are selected?)): 
+      0.9970605526161082
+      F-measure (best 1, worst 0): 
+      0.9385722191477588
+      Miss rate: 
+      0.0029394473838918467
+      False alarm rate: 
+      0.9079497907949791
+    Test statistics:
+      Accuracy: 0.8736717827626919
+      Confusion matrix: 
+      730.0  3.0   
+      104.0  10.0  
+      Precicion (How many selected items are relevant?): 
+      0.8752997601918465
+      Recall (How many relevant items are selected?)): 
+      0.9959072305593452
+      F-measure (best 1, worst 0): 
+      0.9317166560306318
+      Miss rate: 
+      0.004092769440654842
+      False alarm rate: 
+      0.9122807017543859
