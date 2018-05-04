@@ -1,0 +1,164 @@
+CallType only:
+  Training statistics:
+    Accuracy: 0.9597938144329897
+    Confusion matrix: 
+    1623.0  78.0   
+    0.0     239.0  
+    Precicion (How many selected items are relevant?): 
+    1.0
+    Recall (How many relevant items are selected?)): 
+    0.9541446208112875
+    F-measure (best 1, worst 0): 
+    0.9765342960288809
+    Miss rate: 
+    0.04585537918871252
+    False alarm rate: 
+    0.0
+  Test statistics:
+    Accuracy: 0.9775678866587958
+    Confusion matrix: 
+    714.0  19.0   
+    0.0    114.0  
+    Precicion (How many selected items are relevant?): 
+    1.0
+    Recall (How many relevant items are selected?)): 
+    0.9740791268758526
+    F-measure (best 1, worst 0): 
+    0.986869384934347
+    Miss rate: 
+    0.02592087312414737
+    False alarm rate: 
+    0.0
+
+
+CallType+Uhrzeit
+  Training statistics:
+    Accuracy: 0.9391752577319588
+    Confusion matrix: 
+    1622.0  79.0   
+    39.0    200.0  
+    Precicion (How many selected items are relevant?): 
+    0.9765201685731487
+    Recall (How many relevant items are selected?)): 
+    0.9535567313345091
+    F-measure (best 1, worst 0): 
+    0.9649018441403926
+    Miss rate: 
+    0.04644326866549087
+    False alarm rate: 
+    0.16317991631799164
+  Test statistics:
+    Accuracy: 0.9315230224321134
+    Confusion matrix: 
+    711.0  22.0  
+    36.0   78.0  
+    Precicion (How many selected items are relevant?): 
+    0.9518072289156626
+    Recall (How many relevant items are selected?)): 
+    0.9699863574351978
+    F-measure (best 1, worst 0): 
+    0.9608108108108108
+    Miss rate: 
+    0.030013642564802212
+    False alarm rate: 
+    0.3157894736842105
+
+
+CallType+Prio+Uhrzeit
+  Training statistics:
+    Accuracy: 0.9427835051546392
+    Confusion matrix: 
+    1641.0  60.0   
+    51.0    188.0  
+    Precicion (How many selected items are relevant?): 
+    0.9698581560283688
+    Recall (How many relevant items are selected?)): 
+    0.9647266313932981
+    F-measure (best 1, worst 0): 
+    0.9672855879752432
+    Miss rate: 
+    0.03527336860670194
+    False alarm rate: 
+    0.21338912133891214
+  Test statistics:
+    Accuracy: 0.9397874852420307
+    Confusion matrix: 
+    710.0  23.0  
+    28.0   86.0  
+    Precicion (How many selected items are relevant?): 
+    0.962059620596206
+    Recall (How many relevant items are selected?)): 
+    0.9686221009549796
+    F-measure (best 1, worst 0): 
+    0.9653297076818491
+    Miss rate: 
+    0.03137789904502042
+    False alarm rate: 
+    0.24561403508771928
+
+
+CallType+Hood+Uhrzeit
+  Training statistics:
+    Accuracy: 0.8963917525773196
+    Confusion matrix: 
+    1618.0  83.0   
+    118.0   121.0  
+    Precicion (How many selected items are relevant?): 
+    0.9320276497695853
+    Recall (How many relevant items are selected?)): 
+    0.9512051734273956
+    F-measure (best 1, worst 0): 
+    0.941518766366017
+    Miss rate: 
+    0.048794826572604366
+    False alarm rate: 
+    0.49372384937238495
+  Test statistics:
+    Accuracy: 0.885478158205431
+    Confusion matrix: 
+    698.0  35.0  
+    62.0   52.0  
+    Precicion (How many selected items are relevant?): 
+    0.9184210526315789
+    Recall (How many relevant items are selected?)): 
+    0.9522510231923602
+    F-measure (best 1, worst 0): 
+    0.9350301406563966
+    Miss rate: 
+    0.04774897680763979
+    False alarm rate: 
+    0.543859649122807
+
+
+CallType+Prio+Uhrzeit+Hood
+  Training statistics:
+    Accuracy: 0.8788659793814433
+    Confusion matrix: 
+    1698.0  3.0
+    232.0   7.0  
+    Precicion (How many selected items are relevant?): 
+    0.8797927461139896
+    Recall (How many relevant items are selected?)): 
+    0.9982363315696648
+    F-measure (best 1, worst 0): 
+    0.9352795373175433
+    Miss rate: 
+    0.0017636684303351524
+    False alarm rate: 
+    0.9707112970711297
+  Test statistics:
+    Accuracy: 0.8630460448642266
+    Confusion matrix: 
+    727.0  6.0  
+    110.0  4.0  
+    Precicion (How many selected items are relevant?): 
+    0.8685782556750299
+    Recall (How many relevant items are selected?)): 
+    0.9918144611186903
+    F-measure (best 1, worst 0): 
+    0.9261146496815287
+    Miss rate: 
+    0.008185538881309684
+    False alarm rate: 
+    0.9649122807017544
+  
