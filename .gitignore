@@ -8,3 +8,4 @@ core/target/*
 core/Fire_Department_Calls_for_Service.csv
 core/Fire_Incidents.csv
 core/all.csv
+core/models/*
