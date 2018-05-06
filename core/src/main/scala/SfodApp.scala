@@ -1,7 +1,10 @@
 import org.apache.spark.ml.{Pipeline, PipelineStage}
 import org.apache.spark.ml.classification.{LogisticRegression, MultilayerPerceptronClassifier, RandomForestClassifier}
+import org.apache.spark.ml.classification.LinearSVC
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.VectorAssembler
+import org.apache.spark.mllib.classification.SVMWithSGD
+import org.apache.spark.mllib.classification.SVMModel
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
@@ -25,19 +28,19 @@ object SfodApp {
     var df = spark.read.option("header", "true").option("inferSchema", "true").csv(csvFile)
     var fire_incidents = spark.read.option("header", "true").option("inferSchema", "true").csv(fireCsv)
 
-    df = df.join(fire_incidents, df("Incident Number") === fire_incidents("Incident Number"))
+    //df = df.join(fire_incidents, df("Incident Number") === fire_incidents("Incident Number"))
 
     // data processing - rename columns (remove spaces and dashes)
     val newColumnNames = df.columns.map(_.replace(" ", "").replace("-", ""))
     df = df.toDF(newColumnNames: _*)
 
     // data processing - remove all entries where label or feature columns are null
-    df = df.na.drop(Array("CallType", "Priority", "ZipcodeofIncident"))
+    df = df.na.drop(Array("CallType", "Priority"))
 
     // data processing - date schema is not detected automatically -> convert string to datetime
     df = df.withColumn("EntryDtTm", to_timestamp($"EntryDtTm", "MM/dd/yyyy hh:mm:ss a"))
     df = df.withColumn("HourOfDay", hour($"EntryDtTm"))
-    df = df.withColumn("DayOfWeek", dayofweek($"EntryDtTm"))
+    df = df.withColumn("DayOfYear", dayofyear($"EntryDtTm"))
     df = df.withColumn("isWeekend", dayofweek($"EntryDtTm") >= 5)
     df = df.withColumn("MonthOfYear", month($"EntryDtTm"))
     df = df.withColumn("WeekOfYear", weekofyear($"EntryDtTm"))
@@ -46,7 +49,8 @@ object SfodApp {
     df = df.na.drop(Array("HourOfDay", "isWeekend", "MonthOfYear", "WeekOfYear"))
 
     // data processing - add the label column (label = 1 <==> CallTypeGroup = "Potentially Life-Threatening" otherwise label = 0)
-    df = df.withColumn("label", when($"CallTypeGroup" === "Potentially Life-Threatening", 1).otherwise(0))
+    val cfs = "CallFinalDisposition"
+    df = df.withColumn("label", when($"CallTypeGroup" === "Potentially Life-Threatening" && ($"$cfs" === "Code 2 Transport" || $"$cfs" === "Fire" || $"$cfs" === "Patient Declined Transport" || $"$cfs" === "Against Medical Advice" || $"$cfs" === "Medical Examiner" || $"HospitalDtTm".isNotNull || $"HospitalDtTm" =!= ""), 1).otherwise(0))
 
     //There are no same incidentNumbers where CallTypeGroup or Priority is different (BUT slower and worse)
     //df = df.dropDuplicates("IncidentNumber")
@@ -68,7 +72,7 @@ object SfodApp {
 
     // data processing - create String Indexer for categorical values
     val (indexers, encoders) = Helper.indexAndEncode("CallType", "Priority", "NeighborhooodsAnalysisBoundaries")
-    val featureNames = Array("HourOfDay", "DayOfWeek", "isWeekend", "WeekOfYear", "MonthOfYear") ++ indexers.map(_.getOutputCol) //++ encoders.flatMap(_.getOutputCols)
+    val featureNames = Array("HourOfDay", "DayOfYear" /*,"isWeekend" "WeekOfYear", "MonthOfYear"*/) ++ indexers.map(_.getOutputCol) //++ encoders.flatMap(_.getOutputCols)
     val assembler = new VectorAssembler().setInputCols(featureNames).setOutputCol("features")
 
     //Prepare Stages
@@ -97,21 +101,21 @@ object SfodApp {
       featureNames.foreach(feature => {
         count = testFrame.agg(countDistinct(feature).as("count")).collectAsList().get(0).getAs[Long](0)
         if (max < count) {
-          max = count;
+          max = count
         }
       })
 
-      return new RandomForestClassifier()
+      new RandomForestClassifier()
         .setImpurity("gini")
-        .setMaxDepth(3)
-        .setNumTrees(20)
+        .setMaxDepth(20)
+        .setNumTrees(30)
         .setFeatureSubsetStrategy("auto")
         .setSeed(5043)
-        .setMaxBins(max.toInt)
+        .setMaxBins(max.toInt/*+10*/)
     }
 
     def MLP(): PipelineStage ={
-      val layers = Array[Int](numFeatures, 7, 7 , 2)
+      val layers = Array[Int](numFeatures, 3, 2)
       return new MultilayerPerceptronClassifier()
         .setLayers(layers)
         .setBlockSize(128)
@@ -123,6 +127,9 @@ object SfodApp {
       return new LogisticRegression()
     }
 
+    def svm(): PipelineStage = {
+      new LinearSVC().setMaxIter(10).setRegParam(0.1)
+    }
 
     val classifier = randomForest()
     //Setup pipeline
@@ -131,8 +138,8 @@ object SfodApp {
 
     {
       // save model to file
-      val timestamp = System.currentTimeMillis / 1000
-      model.save(s"models/myclassifier-$timestamp")
+      //val timestamp = System.currentTimeMillis / 1000
+      //model.save(s"models/myclassifier-$timestamp")
     }
 
     def printStatistics(what: String, result: DataFrame): Unit = {
