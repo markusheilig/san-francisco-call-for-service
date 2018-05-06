@@ -1,14 +1,19 @@
+import ch.hsr.geohash.GeoHash
+import ch.hsr.geohash.GeoHash
 import org.apache.spark.ml.{Pipeline, PipelineStage}
-import org.apache.spark.ml.classification.{LogisticRegression, MultilayerPerceptronClassifier, RandomForestClassifier}
-import org.apache.spark.ml.classification.LinearSVC
+import org.apache.spark.ml.classification._
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.VectorAssembler
-import org.apache.spark.mllib.classification.SVMWithSGD
-import org.apache.spark.mllib.classification.SVMModel
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.IntegerType
+
+import scala.collection.mutable.ListBuffer
+import org.apache.spark.mllib.classification.SVMWithSGD
+import org.apache.spark.mllib.classification.SVMModel
+
+import scala.collection.mutable.ListBuffer
 
 object SfodApp {
 
@@ -47,6 +52,26 @@ object SfodApp {
 
     // data processing - drop columns where there is no time specification
     df = df.na.drop(Array("HourOfDay", "isWeekend", "MonthOfYear", "WeekOfYear"))
+
+
+    // Introduce geohash
+    val pattern = "-?\\d+\\.{1}\\d+".r
+    spark.udf.register("geohash", (s: String) => {
+      var coords = new ListBuffer[String]
+      pattern.findAllMatchIn(s).foreach(m=>coords+=m.toString())
+      GeoHash.geoHashStringWithCharacterPrecision( coords.apply(0).toDouble, coords.apply(1).toDouble,6)
+    })
+    df = df.withColumn("geohash", callUDF("geohash", $"Location"))
+    df.show(20, false)
+
+    // Introduce new cfd column
+    spark.udf.register("cfdFormatter", (s:String) => {
+      var cfd = "0"
+      if(s.equals("Code 2 Transport") || s.equals("Fire") || s.equals("Patient Declined Transport") || s.equals("Against Medical Advice") || s.equals("Medical Examiner")) cfd = "1"
+      cfd.toInt
+    })
+    df = df.withColumn("CallFinalDispositionNew", callUDF("cfdFormatter", $"CallFinalDisposition"))
+    //df.show(20, false)
 
     // data processing - add the label column (label = 1 <==> CallTypeGroup = "Potentially Life-Threatening" otherwise label = 0)
     val cfs = "CallFinalDisposition"
