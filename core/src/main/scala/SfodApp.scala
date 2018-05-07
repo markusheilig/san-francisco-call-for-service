@@ -72,29 +72,21 @@ object SfodApp {
     {
       def cdfUDF = udf((s:String) => {
         val criticalDispositions = Set("Code 2 Transport", "Fire", "Patient Declined Transport", "Against Medical Advice", "Medical Examiner")
-        if (criticalDispositions.contains(s)) 1 else 0
+        if (criticalDispositions.contains(s)) true else false
       } )
 
-      var dfTemp = df.select($"IncidentNumber", $"CallFinalDisposition")
-      dfTemp = dfTemp.withColumn("isCriticalDisposition", cdfUDF(dfTemp("CallFinalDisposition")))
-      dfTemp = dfTemp.groupBy("IncidentNumber")
-        .agg(collect_set('isCriticalDisposition) as "tmpSet")
-        .withColumn("isCriticalDisposition", array_contains('tmpSet, 1))
-        .drop("tmpSet")
-      df = df.join(dfTemp, Seq("IncidentNumber"))
-    }
-
-    {
       def hospitalUDF = udf((hospital: String, transport: String) => {
         if (hospital == null && transport == null) false else true
       } )
+      df = df.withColumn("isCriticalDispositionT", cdfUDF(df("CallFinalDisposition")))
+        .withColumn("isHospitalTransportT", hospitalUDF(df("HospitalDtTm") , df("TransportDtTm")))
 
-      var dfTemp = df.select($"IncidentNumber", $"HospitalDtTm", $"TransportDtTm")
-      dfTemp = dfTemp.withColumn("isHospitalTransport", hospitalUDF(dfTemp("HospitalDtTm") , dfTemp("TransportDtTm")))
+      var dfTemp = df.select($"IncidentNumber", $"isHospitalTransportT", $"isCriticalDispositionT")
       dfTemp = dfTemp.groupBy("IncidentNumber")
-        .agg(collect_set('isHospitalTransport) as "tmpSet")
-        .withColumn("isHospitalTransport", array_contains('tmpSet, true))
-        .drop("tmpSet")
+        .agg(collect_set('isCriticalDispositionT) as "tmpCD", collect_set('isHospitalTransportT) as "tmpH")
+        .withColumn("isCriticalDisposition", array_contains('tmpCD, true))
+        .withColumn("isHospitalTransport", array_contains('tmpH, true))
+        .drop("tmpCD").drop("tmpH")
       df = df.join(dfTemp, Seq("IncidentNumber"))
     }
 
