@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.StringIndexerModel","timestamp":1525727426202,"sparkVersion":"2.3.0","uid":"strIdx_fe15f68b6e33","paramMap":{"inputCol":"NeighborhooodsAnalysisBoundaries","handleInvalid":"keep","stringOrderType":"frequencyDesc","outputCol":"NeighborhooodsAnalysisBoundariesIndex"}}

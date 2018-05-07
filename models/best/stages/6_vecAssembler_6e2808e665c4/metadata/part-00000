@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.VectorAssembler","timestamp":1525727427937,"sparkVersion":"2.3.0","uid":"vecAssembler_6e2808e665c4","paramMap":{"outputCol":"features","inputCols":["HourOfDay","DayOfYear","CallTypeIndex","FinalPriorityIndex","NeighborhooodsAnalysisBoundariesIndex"]}}
