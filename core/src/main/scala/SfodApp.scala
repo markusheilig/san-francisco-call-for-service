@@ -1,17 +1,10 @@
 import ch.hsr.geohash.GeoHash
-import ch.hsr.geohash.GeoHash
-import org.apache.spark.ml.{Pipeline, PipelineStage}
 import org.apache.spark.ml.classification._
-import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.VectorAssembler
+import org.apache.spark.ml.{Pipeline, PipelineStage}
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
-import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types.IntegerType
-
-import scala.collection.mutable.ListBuffer
-import org.apache.spark.mllib.classification.SVMWithSGD
-import org.apache.spark.mllib.classification.SVMModel
+import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 
 import scala.collection.mutable.ListBuffer
 
@@ -40,7 +33,7 @@ object SfodApp {
     df = df.toDF(newColumnNames: _*)
 
     // data processing - remove all entries where label or feature columns are null
-    df = df.na.drop(Array("CallType", "Priority"))
+    df = df.na.drop(Array("CallType", "Priority", "CallTypeGroup"))
 
     // data processing - date schema is not detected automatically -> convert string to datetime
     df = df.withColumn("EntryDtTm", to_timestamp($"EntryDtTm", "MM/dd/yyyy hh:mm:ss a"))
@@ -75,11 +68,11 @@ object SfodApp {
         if (criticalDispositions.contains(s)) true else false
       } )
 
-      def hospitalUDF = udf((hospital: String, transport: String) => {
-        if (hospital == null && transport == null) false else true
+      def hospitalUDF = udf((hospital: String) => {
+        if (hospital == null || hospital.isEmpty) false else true
       } )
       df = df.withColumn("isCriticalDispositionT", cdfUDF(df("CallFinalDisposition")))
-        .withColumn("isHospitalTransportT", hospitalUDF(df("HospitalDtTm") , df("TransportDtTm")))
+        .withColumn("isHospitalTransportT", hospitalUDF(df("HospitalDtTm")))
 
       var dfTemp = df.select($"IncidentNumber", $"isHospitalTransportT", $"isCriticalDispositionT")
       dfTemp = dfTemp.groupBy("IncidentNumber")
@@ -104,7 +97,7 @@ object SfodApp {
     //There are no same incidentNumbers where CallTypeGroup or Priority is different (BUT slower and worse)
     //df = df.dropDuplicates("IncidentNumber")
 
-    val Array(train, test) = df.randomSplit(Array(0.7, 0.3), seed = 12345)
+    val Array(train, test) = df.randomSplit(Array(0.9, 0.1), seed = 12345)
 
     // data exploration - print schema
     df.printSchema()
@@ -120,7 +113,7 @@ object SfodApp {
     }
 
     // data processing - create String Indexer for categorical values
-    val (indexers, encoders) = Helper.indexAndEncode("CallType", "Priority", "NeighborhooodsAnalysisBoundaries")
+    val (indexers, encoders) = Helper.indexAndEncode("CallType", "FinalPriority", "NeighborhooodsAnalysisBoundaries")
     val featureNames = Array("HourOfDay", "DayOfYear" /*,"isWeekend" "WeekOfYear", "MonthOfYear"*/) ++ indexers.map(_.getOutputCol) //++ encoders.flatMap(_.getOutputCols)
     val assembler = new VectorAssembler().setInputCols(featureNames).setOutputCol("features")
 
@@ -156,7 +149,7 @@ object SfodApp {
 
       new RandomForestClassifier()
         .setImpurity("gini")
-        .setMaxDepth(20)
+        .setMaxDepth(30)
         .setNumTrees(30)
         .setFeatureSubsetStrategy("auto")
         .setSeed(5043)
