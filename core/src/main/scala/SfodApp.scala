@@ -107,7 +107,7 @@ object SfodApp {
     //df.show(20, false)
 
     // data processing - add the label column (label = 1 <==> CallTypeGroup = "Potentially Life-Threatening" otherwise label = 0)
-    df = df.withColumn("label", when($"CallTypeGroup" === "Potentially Life-Threatening" && $"isCriticalDisposition" === true && $"isHospitalTransport" === true /*|| $"HospitalDtTm".isNotNull || $"HospitalDtTm" =!= ""*/, 1).otherwise(0))
+    df = df.withColumn("label", when($"CallTypeGroup" === "Potentially Life-Threatening" && ($"isCriticalDisposition" === true || $"isHospitalTransport" === true), 1).otherwise(0))
 
     //There are no same incidentNumbers where CallTypeGroup or Priority is different (BUT slower and worse)
     //df = df.dropDuplicates("IncidentNumber")

@@ -196,3 +196,40 @@ F-measure (best 1, worst 0):
 Miss rate:
 0.11196203214324241
 False alarm rate:
+
+--------
+CallTypeGroup && isHosptilat && isCriticalDispo
+38,72% of all incidents are potentially life-threatening
+
+Training statistics:
+Accuracy: 0.9161751409996987
+Confusion matrix:
+45617.0  3537.0
+2304.0   18223.0
+Precicion (How many selected items are relevant?):
+0.9519208697648213
+Recall (How many relevant items are selected?)):
+0.9280424787402857
+F-measure (best 1, worst 0):
+0.9398300283286118
+Miss rate:
+0.07195752125971433
+False alarm rate:
+0.1122424124324061
+
+
+Test statistics:
+Accuracy: 0.8546210446431517
+Confusion matrix:
+18699.0  2604.0
+1802.0   7202.0
+Precicion (How many selected items are relevant?):
+0.9121018486903077
+Recall (How many relevant items are selected?)):
+0.8777636952541895
+F-measure (best 1, worst 0):
+0.8946033872356712
+Miss rate:
+0.12223630474581049
+False alarm rate:
+0.20013327410039983
