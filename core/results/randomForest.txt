@@ -161,3 +161,38 @@ CallType+Prio+Uhrzeit+Hood
     0.004092769440654842
     False alarm rate: 
     0.008771929824561403
+--------
+CallTypeGroup && (isHosptilat || isCriticalDispo)
+38,72% of all incidents are potentially life-threatening
+
+Training statistics:
+Accuracy: 0.9273259568605502
+Confusion matrix:
+39943.0  2791.0
+2273.0   24674.0
+Precicion (How many selected items are relevant?):
+0.9461578548417662
+Recall (How many relevant items are selected?)):
+0.9346890064117565
+F-measure (best 1, worst 0):
+0.9403884638022366
+Miss rate:
+0.06531099358824355
+False alarm rate:
+0.08435076260808254
+
+
+Test statistics:
+Accuracy: 0.8774870491965553
+Confusion matrix:
+16466.0  2076.0
+1637.0   10128.0
+Precicion (How many selected items are relevant?):
+0.9095729989504502
+Recall (How many relevant items are selected?)):
+0.8880379678567576
+F-measure (best 1, worst 0):
+0.8986764906535679
+Miss rate:
+0.11196203214324241
+False alarm rate:

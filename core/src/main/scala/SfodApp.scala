@@ -58,62 +58,56 @@ object SfodApp {
     val pattern = "-?\\d+\\.{1}\\d+".r
     spark.udf.register("geohash", (s: String) => {
       var coords = new ListBuffer[String]
-      pattern.findAllMatchIn(s).foreach(m=>coords+=m.toString())
-      GeoHash.geoHashStringWithCharacterPrecision( coords.apply(0).toDouble, coords.apply(1).toDouble,6)
+      pattern.findAllMatchIn(s).foreach(m => coords += m.toString())
+      GeoHash.geoHashStringWithCharacterPrecision(coords.apply(0).toDouble, coords.apply(1).toDouble, 6)
     })
     df = df.withColumn("geohash", callUDF("geohash", $"Location"))
     df.show(20, false)
 
-    // Introduce new cfd column
-    spark.udf.register("cfdFormatter", (s:String) => {
-      val criticalDispositions = Set("Code 2 Transport", "Fire", "Patient Declined Transport", "Against Medical Advice", "Medical Examiner")
-      if (criticalDispositions.contains(s)) 1 else 0
-    })
-    df = df.withColumn("isCriticalDisposition", callUDF("cfdFormatter", $"CallFinalDisposition"))
-
-    {
+    /*{
       df.createOrReplaceTempView("incidents")
       println("Different isCriticalDispo : " + spark.sql("SELECT i1x.IncidentNumber, i2x.IncidentNumber FROM incidents as i1x INNER JOIN incidents as i2x ON i1x.IncidentNumber = i2x.IncidentNumber AND i1x.isCriticalDisposition != i2x.isCriticalDisposition ").count())
-    }
+    }*/
 
     {
-      var df1 = df
-      df1 = df1.withColumnRenamed("IncidentNumber", "IncidentNumber2")
-      df1 = df1.withColumnRenamed("isCriticalDisposition", "isCriticalDisposition2")
-      df = df.groupBy("IncidentNumber")
+      spark.udf.register("cfdFormatter", (s: String) => {
+        val criticalDispositions = Set("Code 2 Transport", "Fire", "Patient Declined Transport", "Against Medical Advice", "Medical Examiner")
+        if (criticalDispositions.contains(s)) 1 else 0
+      })
+
+      var dfTemp = df.select($"IncidentNumber", $"CallFinalDisposition")
+      dfTemp = dfTemp.withColumn("isCriticalDisposition", callUDF("cfdFormatter", $"CallFinalDisposition"))
+      dfTemp = dfTemp.groupBy("IncidentNumber")
         .agg(collect_set('isCriticalDisposition) as "tmpSet")
         .withColumn("isCriticalDisposition", array_contains('tmpSet, 1))
-        .join(df1, df("IncidentNumber") === df1("IncidentNumber2"))
         .drop("tmpSet")
+      df = df.join(dfTemp, Seq("IncidentNumber"))
     }
 
     {
-      spark.udf.register("hospitalUDF", (s: String) => s match {
-        case null => false
-        case _ => s.nonEmpty
+      spark.udf.register("hospitalUDF", (s: String) => {
+        if (s == null || s.isEmpty) false else true
       })
-      df = df.withColumn("isHospitalTransport", callUDF("hospitalUDF", $"HospitalDtTm"))
 
-      var df1 = df
-      df1 = df1.withColumnRenamed("IncidentNumber", "IncidentNumber3")
-      df1 = df1.withColumnRenamed("isHospitalTransport", "isHospitalTransport2")
-      df = df.groupBy("IncidentNumber")
-        .agg(collect_set('HospitalDtTm) as "tmpSet")
+      var dfTemp = df.select($"IncidentNumber", $"HospitalDtTm")
+      dfTemp = dfTemp.withColumn("isHospitalTransport", callUDF("hospitalUDF", $"HospitalDtTm"))
+      dfTemp = dfTemp.groupBy("IncidentNumber")
+        .agg(collect_set('isHospitalTransport) as "tmpSet")
         .withColumn("isHospitalTransport", array_contains('tmpSet, true))
-        .join(df1, df("IncidentNumber") === df1("IncidentNumber3"))
         .drop("tmpSet")
+      df = df.join(dfTemp, Seq("IncidentNumber"))
     }
 
-    {
+    /*{
       df.createOrReplaceTempView("incidents")
       println("Different isCriticalDispo : " + spark.sql("SELECT i1.IncidentNumber, i2.IncidentNumber FROM incidents as i1 INNER JOIN incidents as i2 ON i1.IncidentNumber = i2.IncidentNumber AND i1.isCriticalDisposition != i2.isCriticalDisposition ").count())
-    }
+    }*/
 
 
     //df.show(20, false)
 
     // data processing - add the label column (label = 1 <==> CallTypeGroup = "Potentially Life-Threatening" otherwise label = 0)
-    df = df.withColumn("label", when($"CallTypeGroup" === "Potentially Life-Threatening" && ($"isCriticalDisposition" === true || $"isHospitalTransport" === true /*|| $"HospitalDtTm".isNotNull || $"HospitalDtTm" =!= ""*/), 1).otherwise(0))
+    df = df.withColumn("label", when($"CallTypeGroup" === "Potentially Life-Threatening" && $"isCriticalDisposition" === true && $"isHospitalTransport" === true /*|| $"HospitalDtTm".isNotNull || $"HospitalDtTm" =!= ""*/, 1).otherwise(0))
 
     //There are no same incidentNumbers where CallTypeGroup or Priority is different (BUT slower and worse)
     //df = df.dropDuplicates("IncidentNumber")
@@ -147,7 +141,7 @@ object SfodApp {
     val testFrame = testModel.transform(df)
     var columns: Array[Column] = featureNames.map(testFrame(_))
     columns = columns :+ testFrame("label")
-    testFrame.select(columns:_*).show(20, false)
+    testFrame.select(columns: _*).show(20, false)
 
     //Show pre statistics
     val numFeatures = featureNames.length
@@ -156,11 +150,11 @@ object SfodApp {
     println("testCount --> " + test.count())
 
     // Classifiers
-    def randomForest(): PipelineStage ={
+    def randomForest(): PipelineStage = {
 
       //Find feature with max count for maxBins
-      var max:Long = 0
-      var count:Long = 0
+      var max: Long = 0
+      var count: Long = 0
       featureNames.foreach(feature => {
         count = testFrame.agg(countDistinct(feature).as("count")).collectAsList().get(0).getAs[Long](0)
         if (max < count) {
@@ -174,10 +168,10 @@ object SfodApp {
         .setNumTrees(30)
         .setFeatureSubsetStrategy("auto")
         .setSeed(5043)
-        .setMaxBins(max.toInt/*+10*/)
+        .setMaxBins(max.toInt /*+10*/)
     }
 
-    def MLP(): PipelineStage ={
+    def MLP(): PipelineStage = {
       val layers = Array[Int](numFeatures, 3, 2)
       return new MultilayerPerceptronClassifier()
         .setLayers(layers)
@@ -186,7 +180,7 @@ object SfodApp {
         .setMaxIter(100)
     }
 
-    def LogisticRegression(): PipelineStage ={
+    def LogisticRegression(): PipelineStage = {
       return new LogisticRegression()
     }
 
@@ -217,7 +211,7 @@ object SfodApp {
       println(s"Precicion (How many selected items are relevant?): \n${metrics.precision(0)}")
       println(s"Recall (How many relevant items are selected?)): \n${metrics.recall(0)}")
       println(s"F-measure (best 1, worst 0): \n${metrics.fMeasure(0)}")
-      println(s"Miss rate: \n${1-TPR}")
+      println(s"Miss rate: \n${1 - TPR}")
       println(s"False alarm rate: \n${FPR}")
 
     }
