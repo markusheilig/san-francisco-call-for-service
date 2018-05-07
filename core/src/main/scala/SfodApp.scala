@@ -70,13 +70,13 @@ object SfodApp {
     }*/
 
     {
-      spark.udf.register("cfdFormatter", (s: String) => {
+      def cdfUDF = udf((s:String) => {
         val criticalDispositions = Set("Code 2 Transport", "Fire", "Patient Declined Transport", "Against Medical Advice", "Medical Examiner")
         if (criticalDispositions.contains(s)) 1 else 0
-      })
+      } )
 
       var dfTemp = df.select($"IncidentNumber", $"CallFinalDisposition")
-      dfTemp = dfTemp.withColumn("isCriticalDisposition", callUDF("cfdFormatter", $"CallFinalDisposition"))
+      dfTemp = dfTemp.withColumn("isCriticalDisposition", cdfUDF(dfTemp("CallFinalDisposition")))
       dfTemp = dfTemp.groupBy("IncidentNumber")
         .agg(collect_set('isCriticalDisposition) as "tmpSet")
         .withColumn("isCriticalDisposition", array_contains('tmpSet, 1))
@@ -85,12 +85,12 @@ object SfodApp {
     }
 
     {
-      spark.udf.register("hospitalUDF", (s: String) => {
-        if (s == null || s.isEmpty) false else true
-      })
+      def hospitalUDF = udf((hospital: String, transport: String) => {
+        if (hospital == null && transport == null) false else true
+      } )
 
-      var dfTemp = df.select($"IncidentNumber", $"HospitalDtTm")
-      dfTemp = dfTemp.withColumn("isHospitalTransport", callUDF("hospitalUDF", $"HospitalDtTm"))
+      var dfTemp = df.select($"IncidentNumber", $"HospitalDtTm", $"TransportDtTm")
+      dfTemp = dfTemp.withColumn("isHospitalTransport", hospitalUDF(dfTemp("HospitalDtTm") , dfTemp("TransportDtTm")))
       dfTemp = dfTemp.groupBy("IncidentNumber")
         .agg(collect_set('isHospitalTransport) as "tmpSet")
         .withColumn("isHospitalTransport", array_contains('tmpSet, true))
