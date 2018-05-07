@@ -76,30 +76,28 @@ object SfodApp {
       println("Different isCriticalDispo : " + spark.sql("SELECT i1x.IncidentNumber, i2x.IncidentNumber FROM incidents as i1x INNER JOIN incidents as i2x ON i1x.IncidentNumber = i2x.IncidentNumber AND i1x.isCriticalDisposition != i2x.isCriticalDisposition ").count())
     }
 
-    var df1 = df
-    df1 = df1.withColumnRenamed("IncidentNumber","IncidentNumber2")
-    df1 = df1.withColumnRenamed("isCriticalDisposition","isCriticalDisposition2")
-    df = df.groupBy("IncidentNumber")
-      .agg(collect_set('isCriticalDisposition) as "cfdSet")
-      .withColumn("isCriticalDisposition", array_contains('cfdSet, 1))
-      .join(df1, df("IncidentNumber") === df1("IncidentNumber2"))
+    {
+      var df1 = df
+      df1 = df1.withColumnRenamed("IncidentNumber", "IncidentNumber2")
+      df1 = df1.withColumnRenamed("isCriticalDisposition", "isCriticalDisposition2")
+      df = df.groupBy("IncidentNumber")
+        .agg(collect_set('isCriticalDisposition) as "cfdSet")
+        .withColumn("isCriticalDisposition", array_contains('cfdSet, 1))
+        .join(df1, df("IncidentNumber") === df1("IncidentNumber2"))
+        .drop("cfdSet")
+    }
 
     {
       df.createOrReplaceTempView("incidents")
       println("Different isCriticalDispo : " + spark.sql("SELECT i1.IncidentNumber, i2.IncidentNumber FROM incidents as i1 INNER JOIN incidents as i2 ON i1.IncidentNumber = i2.IncidentNumber AND i1.isCriticalDisposition != i2.isCriticalDisposition ").count())
     }
 
-    df.printSchema()
-    //df.show(2000, false)
-
-
-    sys.exit(0)
 
     //df.show(20, false)
 
     // data processing - add the label column (label = 1 <==> CallTypeGroup = "Potentially Life-Threatening" otherwise label = 0)
     val cfs = "CallFinalDisposition"
-    df = df.withColumn("label", when($"CallTypeGroup" === "Potentially Life-Threatening" && ($"$cfs" === "Code 2 Transport" || $"$cfs" === "Fire" || $"$cfs" === "Patient Declined Transport" || $"$cfs" === "Against Medical Advice" || $"$cfs" === "Medical Examiner" || $"HospitalDtTm".isNotNull || $"HospitalDtTm" =!= ""), 1).otherwise(0))
+    df = df.withColumn("label", when($"CallTypeGroup" === "Potentially Life-Threatening" && ($"isCriticalDisposition" === true || $"HospitalDtTm".isNotNull || $"HospitalDtTm" =!= ""), 1).otherwise(0))
 
     //There are no same incidentNumbers where CallTypeGroup or Priority is different (BUT slower and worse)
     //df = df.dropDuplicates("IncidentNumber")
