@@ -198,6 +198,43 @@ Miss rate:
 False alarm rate:
 
 --------
+CallTypeGroup && isHosptilat(TransportDtTm included) || isCriticalDispo
+38,81% of all incidents are potentially life-threatening
+
+Training statistics:
+Accuracy: 0.9285170993527647
+Confusion matrix:
+39938.0  2727.0
+2254.0   24762.0
+Precicion (How many selected items are relevant?):
+0.9465775502464923
+Recall (How many relevant items are selected?)):
+0.9360834407594046
+F-measure (best 1, worst 0):
+0.941301247981899
+Miss rate:
+0.06391655924059536
+False alarm rate:
+0.08343204027243115
+
+
+Test statistics:
+Accuracy: 0.8780809713927475
+Confusion matrix:
+16435.0  2080.0
+1615.0   10177.0
+Precicion (How many selected items are relevant?):
+0.9105263157894737
+Recall (How many relevant items are selected?)):
+0.8876586551444775
+F-measure (best 1, worst 0):
+0.8989470805415015
+Miss rate:
+0.1123413448555225
+False alarm rate:
+0.1369572591587517
+
+--------
 CallTypeGroup && isHosptilat && isCriticalDispo
 38,72% of all incidents are potentially life-threatening
 
@@ -233,3 +270,40 @@ Miss rate:
 0.12223630474581049
 False alarm rate:
 0.20013327410039983
+
+--------
+CallTypeGroup && isHosptilat(TransportDtTm included) && isCriticalDispo
+29,93% of all incidents are potentially life-threatening
+
+Training statistics:
+Accuracy: 0.9153140741378568
+Confusion matrix:
+45372.0  3498.0
+2403.0   18408.0
+Precicion (How many selected items are relevant?):
+0.949701726844584
+Recall (How many relevant items are selected?)):
+0.9284223449969307
+F-measure (best 1, worst 0):
+0.9389414868849915
+Miss rate:
+0.07157765500306934
+False alarm rate:
+0.11546778146172697
+
+
+Test statistics:
+Accuracy: 0.8547200316758504
+Confusion matrix:
+18630.0  2561.0
+1842.0   7274.0
+Precicion (How many selected items are relevant?):
+0.9100234466588512
+Recall (How many relevant items are selected?)):
+0.8791468076070029
+F-measure (best 1, worst 0):
+0.8943187000456041
+Miss rate:
+0.12085319239299708
+False alarm rate:
+0.20206230802983766
