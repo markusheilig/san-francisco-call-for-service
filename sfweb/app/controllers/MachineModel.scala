@@ -18,21 +18,18 @@ class MachineModel() {
   implicit val spark: SparkSession = SparkSession.builder().config("spark.master", "local").getOrCreate()
   import spark.implicits._
 
-  private val modelPath = "../core/models/myclassifier-1525355227"
+  private val modelPath = "../models/best"
   private val model = PipelineModel.load(modelPath)
 
   def isLifeThreatening(callType: String, priority: String, hood: String, dt: String): Boolean = {
 
     var df = spark.createDataFrame(Seq(
         (callType, priority, hood, dt)
-      )).toDF("CallType", "Priority", "NeighborhooodsAnalysisBoundaries", "EntryDtTm")
+      )).toDF("CallType", "FinalPriority", "NeighborhooodsAnalysisBoundaries", "EntryDtTm")
 
     df = df.withColumn("EntryDtTm", to_timestamp($"EntryDtTm", "MM/dd/yyyy hh:mm:ss a"))
     df = df.withColumn("HourOfDay", hour($"EntryDtTm"))
-    df = df.withColumn("DayOfWeek", dayofweek($"EntryDtTm"))
-    df = df.withColumn("isWeekend", dayofweek($"EntryDtTm") >= 5)
-    df = df.withColumn("MonthOfYear", month($"EntryDtTm"))
-    df = df.withColumn("WeekOfYear", weekofyear($"EntryDtTm"))
+    df = df.withColumn("DayOfYear", dayofweek($"EntryDtTm"))
 
     val res = model.transform(df)
     val result = res.select($"prediction").head()(0)
