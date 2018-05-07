@@ -81,10 +81,27 @@ object SfodApp {
       df1 = df1.withColumnRenamed("IncidentNumber", "IncidentNumber2")
       df1 = df1.withColumnRenamed("isCriticalDisposition", "isCriticalDisposition2")
       df = df.groupBy("IncidentNumber")
-        .agg(collect_set('isCriticalDisposition) as "cfdSet")
-        .withColumn("isCriticalDisposition", array_contains('cfdSet, 1))
+        .agg(collect_set('isCriticalDisposition) as "tmpSet")
+        .withColumn("isCriticalDisposition", array_contains('tmpSet, 1))
         .join(df1, df("IncidentNumber") === df1("IncidentNumber2"))
-        .drop("cfdSet")
+        .drop("tmpSet")
+    }
+
+    {
+      spark.udf.register("hospitalUDF", (s: String) => s match {
+        case null => false
+        case _ => s.nonEmpty
+      })
+      df = df.withColumn("isHospitalTransport", callUDF("hospitalUDF", $"HospitalDtTm"))
+
+      var df1 = df
+      df1 = df1.withColumnRenamed("IncidentNumber", "IncidentNumber3")
+      df1 = df1.withColumnRenamed("isHospitalTransport", "isHospitalTransport2")
+      df = df.groupBy("IncidentNumber")
+        .agg(collect_set('HospitalDtTm) as "tmpSet")
+        .withColumn("isHospitalTransport", array_contains('tmpSet, true))
+        .join(df1, df("IncidentNumber") === df1("IncidentNumber3"))
+        .drop("tmpSet")
     }
 
     {
@@ -96,8 +113,7 @@ object SfodApp {
     //df.show(20, false)
 
     // data processing - add the label column (label = 1 <==> CallTypeGroup = "Potentially Life-Threatening" otherwise label = 0)
-    val cfs = "CallFinalDisposition"
-    df = df.withColumn("label", when($"CallTypeGroup" === "Potentially Life-Threatening" && ($"isCriticalDisposition" === true || $"HospitalDtTm".isNotNull || $"HospitalDtTm" =!= ""), 1).otherwise(0))
+    df = df.withColumn("label", when($"CallTypeGroup" === "Potentially Life-Threatening" && ($"isCriticalDisposition" === true || $"isHospitalTransport" === true /*|| $"HospitalDtTm".isNotNull || $"HospitalDtTm" =!= ""*/), 1).otherwise(0))
 
     //There are no same incidentNumbers where CallTypeGroup or Priority is different (BUT slower and worse)
     //df = df.dropDuplicates("IncidentNumber")
