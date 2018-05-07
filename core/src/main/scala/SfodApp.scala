@@ -66,11 +66,35 @@ object SfodApp {
 
     // Introduce new cfd column
     spark.udf.register("cfdFormatter", (s:String) => {
-      var cfd = "0"
-      if(s.equals("Code 2 Transport") || s.equals("Fire") || s.equals("Patient Declined Transport") || s.equals("Against Medical Advice") || s.equals("Medical Examiner")) cfd = "1"
-      cfd.toInt
+      val criticalDispositions = Set("Code 2 Transport", "Fire", "Patient Declined Transport", "Against Medical Advice", "Medical Examiner")
+      if (criticalDispositions.contains(s)) 1 else 0
     })
-    df = df.withColumn("CallFinalDispositionNew", callUDF("cfdFormatter", $"CallFinalDisposition"))
+    df = df.withColumn("isCriticalDisposition", callUDF("cfdFormatter", $"CallFinalDisposition"))
+
+    {
+      df.createOrReplaceTempView("incidents")
+      println("Different isCriticalDispo : " + spark.sql("SELECT i1x.IncidentNumber, i2x.IncidentNumber FROM incidents as i1x INNER JOIN incidents as i2x ON i1x.IncidentNumber = i2x.IncidentNumber AND i1x.isCriticalDisposition != i2x.isCriticalDisposition ").count())
+    }
+
+    var df1 = df
+    df1 = df1.withColumnRenamed("IncidentNumber","IncidentNumber2")
+    df1 = df1.withColumnRenamed("isCriticalDisposition","isCriticalDisposition2")
+    df = df.groupBy("IncidentNumber")
+      .agg(collect_set('isCriticalDisposition) as "cfdSet")
+      .withColumn("isCriticalDisposition", array_contains('cfdSet, 1))
+      .join(df1, df("IncidentNumber") === df1("IncidentNumber2"))
+
+    {
+      df.createOrReplaceTempView("incidents")
+      println("Different isCriticalDispo : " + spark.sql("SELECT i1.IncidentNumber, i2.IncidentNumber FROM incidents as i1 INNER JOIN incidents as i2 ON i1.IncidentNumber = i2.IncidentNumber AND i1.isCriticalDisposition != i2.isCriticalDisposition ").count())
+    }
+
+    df.printSchema()
+    //df.show(2000, false)
+
+
+    sys.exit(0)
+
     //df.show(20, false)
 
     // data processing - add the label column (label = 1 <==> CallTypeGroup = "Potentially Life-Threatening" otherwise label = 0)
