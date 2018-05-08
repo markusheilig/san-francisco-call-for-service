@@ -1,2 +1,2 @@
-# scala-spark-mllib-demo
-Apache Spark mllib exapmle for seminar 'AI with scala'
+# San Francisco - Call for Service
+Apache Spark mllib example for seminar 'AI with scala'
