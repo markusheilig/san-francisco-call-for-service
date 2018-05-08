@@ -307,3 +307,75 @@ Miss rate:
 0.12085319239299708
 False alarm rate:
 0.20206230802983766
+
+
+----------
+Num Trees 40
+
+Training statistics:
+Accuracy: 0.9589806850258941
+Confusion matrix:
+53185.0  2008.0
+1683.0   33106.0
+Precicion (How many selected items are relevant?):
+0.9693263833199679
+Recall (How many relevant items are selected?)):
+0.9636185748192706
+F-measure (best 1, worst 0):
+0.9664640517531187
+Miss rate:
+0.0363814251807294
+False alarm rate:
+0.048377360659978726
+
+
+Test statistics:
+Accuracy: 0.9031581051369179
+Confusion matrix:
+5565.0  518.0
+451.0   3472.0
+Precicion (How many selected items are relevant?):
+0.925033244680851
+Recall (How many relevant items are selected?)):
+0.9148446490218642
+F-measure (best 1, worst 0):
+0.9199107364244978
+Miss rate:
+0.08515535097813576
+False alarm rate:
+0.1149630384909508
+
+--------------------
+
+Training statistics:
+Accuracy: 0.9579249183169968
+Confusion matrix:
+53171.0  2022.0
+1764.0   33025.0
+Precicion (How many selected items are relevant?):
+0.9678893237462456
+Recall (How many relevant items are selected?)):
+0.9633649194644248
+F-measure (best 1, worst 0):
+0.9656218218799942
+Miss rate:
+0.03663508053557518
+False alarm rate:
+0.05070568283077984
+
+
+Test statistics:
+Accuracy: 0.9030581651009394
+Confusion matrix:
+5555.0  528.0
+442.0   3481.0
+Precicion (How many selected items are relevant?):
+0.9262964815741204
+Recall (How many relevant items are selected?)):
+0.9132007233273056
+F-measure (best 1, worst 0):
+0.9197019867549668
+Miss rate:
+0.08679927667269438
+False alarm rate:
+0.11266887586031099

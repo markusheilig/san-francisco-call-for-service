@@ -113,7 +113,7 @@ object SfodApp {
     }
 
     // data processing - create String Indexer for categorical values
-    val (indexers, encoders) = Helper.indexAndEncode("CallType", "FinalPriority", "NeighborhooodsAnalysisBoundaries")
+    val (indexers, encoders) = Helper.indexAndEncode("CallType", "Priority", "NeighborhooodsAnalysisBoundaries")
     val featureNames = Array("HourOfDay", "DayOfYear" /*,"isWeekend" "WeekOfYear", "MonthOfYear"*/) ++ indexers.map(_.getOutputCol) //++ encoders.flatMap(_.getOutputCols)
     val assembler = new VectorAssembler().setInputCols(featureNames).setOutputCol("features")
 
