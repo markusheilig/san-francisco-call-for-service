@@ -48,7 +48,7 @@ object SfodApp {
       // define our label
 
       def cdfUDF = udf((s:String) => {
-        val criticalDispositions = Set("Code 2 Transport", "Fire", "Patient Declined Transport", "Against Medical Advice", "Medical Examiner")
+        val criticalDispositions = Set("Code 2 Transport", "Fire", "Patient Declined Transport", "Against Medical Advice", "Medical Examiner", "Multi-casualty Incident")
         criticalDispositions.contains(s)
       } )
 
@@ -71,7 +71,6 @@ object SfodApp {
       df = df.withColumn("label", when($"CallTypeGroup" === "Potentially Life-Threatening" && ($"isCriticalDisposition" === true || $"isHospitalTransport" === true), 1).otherwise(0))
     }
 
-
     val Array(train, test) = df.randomSplit(Array(0.9, 0.1), seed = 12345)
 
     // data processing - create String Indexer for categorical values
@@ -89,7 +88,6 @@ object SfodApp {
     var columns: Array[Column] = featureNames.map(testFrame(_))
     columns = columns :+ testFrame("label")
     testFrame.select(columns: _*).show(20, false)
-
     // data exploration - how many incidents are "Potentially Life-Threatening" (in percent)
     {
       val potentiallyLifeThreatening = df.filter($"label" === 1).count()
