@@ -133,7 +133,7 @@
             </div>
             <div class="row-fuild" style="padding-top: 20px">
                 <div class="col-12">
-                    <button id="predict" type="button" class="btn btn-block" style="background-color: #AA3939">
+                    <button id="predict" type="button" class="btn btn-block btn-primary">
       Predict
                     </button>
                 </div>
@@ -169,7 +169,8 @@
                 axios.get('/sf?prio=' + prio + "&hood=" + hood + "&callType=" + callType + "&dt=" + date)
                         .then(function (response) {
                             console.log(response.data);
-                            alert(response.data.lifeThreatening)
+                            const answer = response.data.lifeThreatening ? "yes" : "no";
+                            alert("Is this incident life-threatening? " + answer);
                         })
                         .catch(function (error) {
                             console.log(error);
